@@ -1,0 +1,242 @@
+<?php
+//TRYING DYNAMICALLY
+$_objectmanager = \Magento\Framework\App\ObjectManager::getInstance();
+$_helper = $_objectmanager->get('\Bss\ConfigurableMatrixView\Helper\Data');
+?>
+
+<div class="bulk_purchase_div">
+   <?php 
+      $_product       = $block->getProduct();
+
+      $productTypeInstance = $_objectmanager->get('Magento\ConfigurableProduct\Model\Product\Type\Configurable');
+      $productAttribute = $productTypeInstance->getConfigurableAttributesAsArray($_product);
+
+        $productAttributeOptions = $productTypeInstance->getConfigurableAttributesAsArray($_product);
+        $attribute_code = [];
+
+        foreach ($productAttributeOptions as $option) {
+            if (in_array($option['attribute_code'], $attribute_code)) {
+                continue;
+            }
+
+            $attribute = \Magento\Framework\App\ObjectManager::getInstance()->get('Magento\Eav\Model\Config')->getAttribute('catalog_product', $option['attribute_code']);
+
+            if (!$attribute->getIsMatrixView()) {
+                continue;
+            }
+
+            $attribute_code[$option['attribute_id']] = $option['attribute_code'];
+        }
+
+        $attribute_matrix = array_slice($attribute_code, -2, 2, true);
+
+        $number_attribute_matrix = count($attribute_matrix);
+
+        if ($number_attribute_matrix == 1) {
+          foreach ($attribute_matrix as $k => $v) {
+            $attributes_matrix[] = $productAttribute[$k];
+          }
+        }
+        if ($number_attribute_matrix == 2) {
+          foreach ($attribute_matrix as $k2 => $v2) {
+            $attributes_matrix[] = $productAttribute[$k2];
+          }
+        }
+
+        
+        
+        $sort_option = [];
+        $sort_option_success = [];
+
+        if ($_helper->getSortOption()) {
+          foreach ($attributes_matrix[0]['values'] as $k11 => $v11) {
+            $sort_option[$v11['store_label']] = $v11;
+          }
+          ksort($sort_option);
+
+          foreach ($sort_option as $k12 => $v12) {
+            $sort_option_success[] = $v12;
+          }
+        }else{
+          $sort_option_success = $attributes_matrix[0]['values'];
+        }
+
+        
+
+exit;
+
+      $helper         = $this->helper('Bioworld\Bulkpurchase\Helper\Data');
+      $default_sizes  = $helper->getSizeAttributes();
+      ?>
+   <div class="bulk_purchase_inner_div">
+      <?php 
+         if($_product->getTypeId()=='configurable'):
+         
+             $_children = $_product->getTypeInstance()->getUsedProducts($_product);
+             $cat_id = 121; //todo : should be dynamic
+         
+             ?>
+      <form 
+         class="product_addtocart_form" 
+         method="post" 
+         id="bulk_add_form<?php echo $_product->getId() ?>">
+         <input type="hidden" name="product" value="<?php echo $_product->getId() ?>"/>
+         <input type="hidden" name="cat_id" value="<?php echo $cat_id; ?>"/>
+         <input type="hidden" name="moqRule" value="<?php echo ($_product->getAttributeText('moq_applicable')?$_product->getAttributeText('moq_applicable'):'Yes') ?>">
+  
+    <div class="overall-height">
+         <table class="product-info">
+            <thead>
+               <tr>
+                  <th class="size-head">Size</th>
+                  <th class="price-head">Price</th>
+                  <th class="qty-head">Qty</th>
+               </tr>
+            </thead>
+            <tbody>
+               <?php
+                  $a = 0;
+                  
+                  $objectManager = \Magento\Framework\App\ObjectManager::getInstance(); 
+                  
+                  
+                    foreach($default_sizes as $short_size => $size){
+                  
+                        foreach($_children as $child):
+                  
+                          if ($child->isSaleable()) {
+                  
+                              $a++;    
+                  
+                              $productAttributeOptions = $_product->getTypeInstance(true)->getConfigurableAttributesAsArray($_product);
+                  
+                              $retArray = array();
+                  
+                              if($child->getAttributeText('size'))
+                              {
+
+                                   if($size==$child->getAttributeText('size'))
+                                   {
+                      
+                                      $priceHelper = $objectManager
+                                                        ->create('Magento\Framework\Pricing\Helper\Data'); 
+                      
+                      
+                                      echo '<tr class="item-details">';
+                      
+                                        foreach ($productAttributeOptions as $option) {
+                      
+                                              $retArray[$option['attribute_id']]['label'] = $option['label'];
+                                              $retArray[$option['attribute_id']]['code'] = $option['attribute_code'];
+                                        }
+                      
+                                        foreach ($retArray as $attrId => $each) { ?>
+
+                                           <td  class="size-val">
+                                              <?php 
+                                                 echo $short_size;
+                                                 //echo "-";
+                                                 ?>
+                                              <input 
+                                                 type="hidden" 
+                                                 name="<?php echo $_product->getId() . '[' . $a . '][super_attribute][' . $attrId . ']'; ?>" 
+                                                 value="<?php echo $child->getData($each['code']); ?>" 
+                                                 />
+                                           </td>
+
+                                        <?php 
+                                        }
+                                        ?>
+
+                                        <td class="price-val">
+                                            <?php echo $priceHelper->currency($child->getFinalPrice(),true,false) ?>                                                
+                                        </td>
+
+                                       <td class="qty-val">
+                                          <?php
+                                             $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+                                             $stockStatus = $objectManager->get('\Magento\CatalogInventory\Api\StockStateInterface');
+                                             $stockQty = $stockStatus->getStockQty($child->getId(),$child->getStore()->getWebsiteId());
+                                             ?>
+                                          
+                                          <input                                              
+                                             class="qty_bulk" 
+                                             type="text" 
+                                             name="product_child[<?php echo $child->getId();?>][<?php echo $stockQty; ?>][]" 
+                                             value="0"
+                                             />
+                                             <?php if($stockQty<5){
+                                                echo '<span class="qty-left">('.$stockQty.' Qty left)</span>';
+                                             }?>
+                                       </td>
+                                <?php
+                                echo '</tr>';
+                        }
+                      }
+                  }
+
+                  endforeach;
+
+                  }
+                  ?>
+            </tbody>
+         </table>
+</div>
+
+
+         <input type="hidden" name="form_key" value="<?php echo $block->getFormKey() ?>" />
+         <input 
+            type="button" 
+            class="bulk_purch_btn pop_add<?php echo $_product->getId() ?> action tocart primary" 
+            id="pop_add" 
+            value="Add to Cart"
+            />
+      </form>
+      <?php
+         else:
+             /* FOR SIMPLE PRODUCTS */
+             ?>
+      <form 
+         class="product_addtocart_form" 
+         method="post" 
+         id="bulk_add_form<?php echo $_product->getId() ?>">
+      <input type="hidden" name="product" value="<?php echo $_product->getId() ?>"/>
+      <input type="hidden" name="cat_id" value=""/>
+      <input type="hidden" name="moqRule" value="<?php echo ($_product->getAttributeText('moq_applicable')?$_product->getAttributeText('moq_applicable'):'Yes') ?>">
+      <table class="bulk_purchase_table_simple">
+        <!-- <thead>
+            <tr><th>Qty</th><th></th></tr>
+        </thead> -->
+        <tbody>
+         <tr>
+            <td>Qty</td>
+            <td class="qty_txt">
+               <?php
+                  $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+                  $stockStatus = $objectManager->get('\Magento\CatalogInventory\Api\StockStateInterface');
+                  $stockQty = $stockStatus->getStockQty($_product->getId(),$_product->getStore()->getWebsiteId());
+                  ?>
+               <input 
+                  class="qty_bulk" 
+                  type="text" 
+                  name="product_child[<?php echo $_product->getId();?>][<?php echo $stockQty; ?>][] ?>" 
+                  value="0"
+                  />
+               <?php if($stockQty<5){
+                  echo '<span style="color:red">('.$stockQty.' Qty left)</span>';
+                  }?>
+            </td>
+            <td><input 
+               type="button" 
+               class="bulk_purch_btn pop_add<?php echo $_product->getId() ?> action tocart primary" 
+               id="pop_add" 
+               value="Add to Cart"
+               /></td>
+         </tr>
+     </tbody>
+      </table>
+      <?php
+         endif;
+         ?>
+   </div>
+</div>

@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+
+	<!-- <preference for="Magento\Catalog\Block\Product\ListProduct" type="Bioworld\Bulkpurchase\Block\Product\ListProduct" /> -->
+
+	<type name="Magento\Catalog\Block\Product\ListProduct">
+	    <plugin name="block-product-list" type="Bioworld\Bulkpurchase\Plugin\ProductList"/>
+	</type>
+    <virtualType name="Magento\CatalogSearch\Block\SearchResult\ListProduct">
+	    <plugin name="block-product-list" type="Bioworld\Bulkpurchase\Plugin\ProductList" />
+	</virtualType>
+
+</config>

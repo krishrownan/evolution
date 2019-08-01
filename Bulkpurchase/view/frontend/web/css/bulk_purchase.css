@@ -1,0 +1,86 @@
+.bulk_purchase_table tr{border:1px solid;}
+.bulk_purchase_table_simple td .qty_bulk {width: 63px; float: right; text-align: center;vertical-align: middle;}
+.bulk_purchase_table_simple td .qty_txt span{color: red;}
+.qty-val{
+     height: 23px;
+     text-align: center;
+     vertical-align: middle;
+}
+input.qty_bulk {
+    text-align: center;
+}
+.size-val{
+    vertical-align: middle;
+}
+.price-val{
+    vertical-align: middle;
+}
+td.size-val {
+    background: #f0f0f0;
+}
+tr.item-details {
+    border-bottom: 1px solid #ccc;
+}
+table.product-info{
+    border: 1px solid #ccc;
+    width: 100% !important;
+}
+th.size-head,th.price-head,th.qty-head{
+    background: #f0f0f0;
+}
+button.action.tocart.primary {
+    margin-top: 4px;
+    /* margin-left: 38px; */
+    display:none;
+}
+.overall-height {
+    /*height: 350px;*/
+    margin-bottom: 10px;
+}
+div[class^="swatch-opt-"] {
+    margin-bottom: 10px;
+}
+button.action-tocart.primary {
+    background: #f2703e;
+    color: white;
+}
+.qty-left{
+    font-size: 12px;
+    color: red;
+    width: 100%;
+    float: right;
+    margin-top:4px;
+}
+
+table > tbody > tr > td{
+    padding: 6px 10px;
+    text-align: center;
+}
+
+.bulk_purchase_table_simple > tbody > tr > td
+{ 
+    padding: 6px 6px;
+    text-align: center;
+    vertical-align: top;   
+}
+
+.product-item-name{
+    min-height: 62px;
+
+}
+li.item.product.product-item {
+    background: none repeat scroll 0 0 #efefef;
+    overflow: hidden;
+    padding: 6px;
+    position: relative;
+}
+.product-item-photo .product-image-container .product-image-wrapper .product-image-photo {
+    transition: all 0.4s ease 0s;
+    -webkit-transition: all 0.4s ease 0s;
+    border: none !important;
+    margin: 0px;
+}
+
+.bulk_purchase_table_simple .action.primary {
+    padding: 7px;  
+}
